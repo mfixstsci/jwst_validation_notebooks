@@ -2,7 +2,7 @@
 <html>
 <head><meta charset="utf-8" />
 
-<title>exec_jwst_dark_quality_test</title>
+<title>exec_jwst_resample_miri_testing</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
@@ -13120,9 +13120,12 @@ div#notebook {
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><a id="title_ID"></a></p>
-<h1 id="JWST-Pipeline-Validation-Testing-Notebook:-Dark-Quality-Test">JWST Pipeline Validation Testing Notebook: Dark Quality Test<a class="anchor-link" href="#JWST-Pipeline-Validation-Testing-Notebook:-Dark-Quality-Test">&#182;</a></h1><h3 id="Table-of-Contents">Table of Contents<a class="anchor-link" href="#Table-of-Contents">&#182;</a></h3><div style="text-align: left"> 
+<h1 id="JWST-Pipeline-Validation-Testing-Notebook:-Calwebb_Image3,-Resample-step">JWST Pipeline Validation Testing Notebook: Calwebb_Image3, Resample step<a class="anchor-link" href="#JWST-Pipeline-Validation-Testing-Notebook:-Calwebb_Image3,-Resample-step">&#182;</a></h1><p><span style="color:red"> **Instruments Affected**</span>: FGS, MIRI, NIRCam, NIRISS, NIRSpec</p>
+<p>Tested on MIRI Simulated data</p>
+<h3 id="Table-of-Contents">Table of Contents<a class="anchor-link" href="#Table-of-Contents">&#182;</a></h3><div style="text-align: left"> 
 
-<br> [Introduction](#intro_ID) <br> [Imports](#imports_ID) <br> [Getting the Data](#data_ID) <br> [Run Dark Correction Pipeline Step](#pipeline_ID) <br> [Check the slope of the median ramp for the detector](#slope_ID) <br> 
+<br>  [Introduction](#intro_ID) <br> [Run JWST Pipelines](#pipeline_ID) <br> [Imports](#imports_ID) <br> [Find Stars in Image and Determine their Coordinates](#runscript_ID) <br> [Compare RA and Dec to expected Values](#residual_ID) <br> [About This Notebook](#about_ID) <br>
+
 
 </div>
 </div>
@@ -13132,10 +13135,46 @@ div#notebook {
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><a id="intro_ID"></a></p>
-<h1 id="Introduction">Introduction<a class="anchor-link" href="#Introduction">&#182;</a></h1><p>The dark current step removes dark current from a JWST exposure by subtracting dark current data stored in a dark reference file.</p>
-<p>For more details, visit the documentation here: <a href="https://jwst-pipeline.readthedocs.io/en/latest/jwst/dark_current/description.html">https://jwst-pipeline.readthedocs.io/en/latest/jwst/dark_current/description.html</a></p>
-<h3 id="Defining-Term">Defining Term<a class="anchor-link" href="#Defining-Term">&#182;</a></h3><p>JWST: James Webb Space Telescope</p>
-<p>OUT: Other Useful Terms</p>
+<h1 id="Introduction">Introduction<a class="anchor-link" href="#Introduction">&#182;</a></h1><p>This test is designed to test the resample step in the calwebb_image3 pipeline. At the end of the calwebb_image3 pipeline, the set of files defined in an association table will be distortion corrected and combined. Resample is the step that applies the distortion correction using the drizzling algorithm (as defined in the DrizzlePac handbook) and combines the listed files. For more information on the pipeline step visit the links below.</p>
+<p>Step description: <a href="https://jwst-pipeline.readthedocs.io/en/latest/jwst/resample/main.html">https://jwst-pipeline.readthedocs.io/en/latest/jwst/resample/main.html</a></p>
+<p>Pipeline code: <a href="https://github.com/spacetelescope/jwst/tree/master/jwst/resample">https://github.com/spacetelescope/jwst/tree/master/jwst/resample</a></p>
+<p>The data for this test were created with the MIRI Data Simulator, and the documentation for that code can be found here: <a href="http://miri.ster.kuleuven.be/bin/view/Public/MIRISim_Public">http://miri.ster.kuleuven.be/bin/view/Public/MIRISim_Public</a></p>
+<h3 id="Calibration-WG-Requested-Algorithm:">Calibration WG Requested Algorithm:<a class="anchor-link" href="#Calibration-WG-Requested-Algorithm:">&#182;</a></h3><p>A short description and link to the page: <a href="https://outerspace.stsci.edu/display/JWSTCC/Vanilla+Image+Combination">https://outerspace.stsci.edu/display/JWSTCC/Vanilla+Image+Combination</a></p>
+<h3 id="Defining-Terms">Defining Terms<a class="anchor-link" href="#Defining-Terms">&#182;</a></h3><p>Definition of terms or acronymns.</p>
+<p>JWST: James Webb Space Telescope</p>
+<p>MIRI: Mid-Infrared Instrument</p>
+<p>MIRISim: MIRI Data Simulator</p>
+<h3 id="Description-of-test">Description of test<a class="anchor-link" href="#Description-of-test">&#182;</a></h3><p>This test is performed by creating a set of simulated data with five point sources located at specified coordinates. The simulator puts in the expected distortion, so the initial output data comes out of the simulator in distorted coordinates. When this data is then run through calwebb_detector1, calwebb_image2 and calwebbb_image3, the combined, undistorted image should have the five point sources registered at the expected locations. In flight, this test can be repeated with known stars that should be found at their expected coordinates.</p>
+<h3 id="Create-the-data-for-testing">Create the data for testing<a class="anchor-link" href="#Create-the-data-for-testing">&#182;</a></h3><p>The set of data used in this particular test were created with the MIRI Data Simulator (MIRISim). Referring to the MIRISim link, you can see how to set up and run the simulator to re-create the input files if you wish. The data was run with a scene.ini file that specified what the scene should look like, with coordinates for the stars given in units of arcsecond offsets from the center of the field of view. The scene.ini file as well as the setup files simuation.ini and simulator.ini are located in the same directory as the data.</p>
+<p>Once in the mirisim conda environment, the simulation is run with the command line:</p>
+<blockquote><p>mirisim simulation.ini</p>
+</blockquote>
+<p>The simulator created four files, two exposures each at two different dither positions, using the F770W filter. Make sure the WCSAXES header keyword in the SCI extension is set to 2 and not 4. If it is set to 4, change it to 2.</p>
+<p><a href="#title_ID">Top of Page</a></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><a id="pipeline_ID"></a></p>
+<h2 id="Run-JWST-Pipelines">Run JWST Pipelines<a class="anchor-link" href="#Run-JWST-Pipelines">&#182;</a></h2><p>The four files were then run individually through the calwebb_detector1 and calwebb_image2 pipelines. When running the calwebb_detector1 pipeline, increase the threshold for a detection in the jump step from 4 sigma to 10 sigma to avoid a current issue where the jump detection step flags a large percentage of pixels as jumps. This can be done on the command line. (commands to be typed start with $)</p>
+<p>The pipelines can be run on the command line with the following commands or put into a script while using the pipeline conda environment.</p>
+<p>$ strun calwebb_detector1.cfg filename --steps.jump.rejection_threshold 10.0</p>
+<p>The output of the calwebb_detector1 pipeline is a set of four *rate.fits files which will then be run through the calwebb_image2 pipeline.</p>
+<p>$ strun calwebb_image2.cfg filename</p>
+<p>The output of the calwebb_image2 pipeline was then a set of four *cal.fits files. An association table was created that included these four files as input, and then the files and the association table were run through the calwebb_image3 pipeline.</p>
+<p>The association table can be created with the following command in the pipeline conda environment.</p>
+<p>$  asn_from_list det_image_seq1_MIRIMAGE_F770Wexp1_rate10_cal.fits det_image_seq1_MIRIMAGE_F770Wexp2_rate10_cal.fits det_image_seq2_MIRIMAGE_F770Wexp1_rate10_cal.fits det_image_seq2_MIRIMAGE_F770Wexp2_rate10_cal.fits -o 'det_dithered_5stars.json' --product-name='det_dithered_5stars.fits'</p>
+<p>The simulated data at this point (after calwebb_detector1 and calwebb_image2) are:</p>
+<p>det_image_seq1_MIRIMAGE_F770Wexp1_rate10_cal.fits</p>
+<p>det_image_seq1_MIRIMAGE_F770Wexp2_rate10_cal.fits</p>
+<p>det_image_seq2_MIRIMAGE_F770Wexp1_rate10_cal.fits</p>
+<p>det_image_seq2_MIRIMAGE_F770Wexp2_rate10_cal.fits</p>
+<p>The association table linking these files is det_dithered_5stars.json</p>
+<p>These files can be run through the calwebb_image3 pipeline with a single command line in the pipeline astroconda environment. For this particular test to work, set the tweakreg step to be skipped when running calwebb_image3.</p>
+<p>$ strun calwebb_image3.cfg det_dithered_5stars.json --steps.tweakreg.skip True</p>
 <p><a href="#title_ID">Top of Page</a></p>
 
 </div>
@@ -13145,15 +13184,17 @@ div#notebook {
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><a id="imports_ID"></a></p>
-<h1 id="Imports">Imports<a class="anchor-link" href="#Imports">&#182;</a></h1><ul>
-<li>jwst.datamodels for building model for JWST Pipeline</li>
-<li>jwst.dark_current.dark_sub.do_correction to perform the dark correction</li>
+<h1 id="Imports">Imports<a class="anchor-link" href="#Imports">&#182;</a></h1><p>The following packages will need to be imported for the scripts to work.</p>
+<ul>
+<li>astropy.io for opening files</li>
+<li>astropy.stats for sigma clipping routine</li>
+<li>astropy.visualization for image plotting</li>
+<li>ci_watson.artifactory_helpers.get_bigdata for data retrieval</li>
+<li>jwst.datamodels for opening files as a JWST Datamodel</li>
+<li>numpy for calculations</li>
 <li>matplotlib.pyplot.plt to generate plot</li>
-<li>numpy for array parsing and masking</li>
-<li><p>os for operating system commands.</p>
-</li>
-<li><p>matplotlib inline for plot rendering in notebook</p>
-</li>
+<li>os for path information  </li>
+<li>photutils for star finding and aperture photometry</li>
 </ul>
 <p><a href="#title_ID">Top of Page</a></p>
 
@@ -13165,13 +13206,18 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[1]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># %matplotlib inline</span>
-
-<span class="kn">from</span> <span class="nn">jwst.datamodels</span> <span class="k">import</span> <span class="n">DarkMIRIModel</span><span class="p">,</span> <span class="n">MIRIRampModel</span>
-<span class="kn">from</span> <span class="nn">jwst.dark_current.dark_sub</span> <span class="k">import</span> <span class="n">do_correction</span>
-<span class="c1"># import matplotlib.pyplot as plt</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">astropy.io</span> <span class="k">import</span> <span class="n">ascii</span>
+<span class="kn">from</span> <span class="nn">astropy.stats</span> <span class="k">import</span> <span class="n">sigma_clipped_stats</span>
+<span class="kn">from</span> <span class="nn">astropy.table</span> <span class="k">import</span> <span class="n">Column</span>
+<span class="kn">from</span> <span class="nn">astropy.visualization</span> <span class="k">import</span> <span class="n">SqrtStretch</span>
+<span class="kn">from</span> <span class="nn">astropy.visualization.mpl_normalize</span> <span class="k">import</span> <span class="n">ImageNormalize</span>
+<span class="kn">from</span> <span class="nn">ci_watson.artifactory_helpers</span> <span class="k">import</span> <span class="n">get_bigdata</span>
+<span class="kn">from</span> <span class="nn">jwst.datamodels</span> <span class="k">import</span> <span class="n">DrizProductModel</span>
+<span class="c1">#from jwst.pipeline import Image3Pipeline</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">photutils</span> <span class="k">import</span> <span class="n">CircularAperture</span><span class="p">,</span> <span class="n">DAOStarFinder</span>
 </pre></div>
 
     </div>
@@ -13182,11 +13228,17 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><a id="data_ID"></a></p>
-<h1 id="Getting-the-Data">Getting the Data<a class="anchor-link" href="#Getting-the-Data">&#182;</a></h1><p>We are constructing a fake MIRI/Dark model dataset using the datamodels library in JWST.</p>
-<p>Mention something about artifactory... Or how or where we store and access data.</p>
+<p><a id="runscript_ID"></a></p>
+<h1 id="Find-stars-in-image-and-determine-their-coordinates">Find stars in image and determine their coordinates<a class="anchor-link" href="#Find-stars-in-image-and-determine-their-coordinates">&#182;</a></h1><p>The output of the pipeline command in the previous step (given our association table) is called det_dithered_5stars_i2d.fits. This file is in the format of a JWST Data model type of DrizProductModel and should be opened as such. It is this file that we will use for source finding and to determine whether the stars are found in the expected locations. The i2d file and the associated text file containing the input coordinates of the stars can be found in artifactory.</p>
 <p><a href="#title_ID">Top of Page</a></p>
 
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Read-in-combined-i2d-data-file-and-list-of-coordinates">Read in combined i2d data file and list of coordinates<a class="anchor-link" href="#Read-in-combined-i2d-data-file-and-list-of-coordinates">&#182;</a></h4>
 </div>
 </div>
 </div>
@@ -13195,85 +13247,40 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># size of integration</span>
-<span class="n">nints</span> <span class="o">=</span> <span class="mi">1</span>
-<span class="n">ngroups</span> <span class="o">=</span> <span class="mi">7</span>
-<span class="n">xsize</span> <span class="o">=</span> <span class="mi">1032</span>
-<span class="n">ysize</span> <span class="o">=</span> <span class="mi">1024</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Read in input i2d file</span>
 
-<span class="c1"># Define data&#39;s shape</span>
-<span class="n">csize</span> <span class="o">=</span> <span class="p">(</span><span class="n">nints</span><span class="p">,</span> <span class="n">ngroups</span><span class="p">,</span> <span class="n">ysize</span><span class="p">,</span> <span class="n">xsize</span><span class="p">)</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">nints</span><span class="p">,</span> <span class="n">ngroups</span><span class="p">,</span> <span class="n">ysize</span><span class="p">,</span> <span class="n">xsize</span><span class="p">)</span><span class="o">*</span><span class="mf">1e6</span>
+<span class="n">file</span> <span class="o">=</span> <span class="n">get_bigdata</span><span class="p">(</span><span class="s1">&#39;jwst_validation_notebooks&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;validation_data.zip!&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;validation_data&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;resample&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;jwst_resample_miri_test&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;det_dithered_5stars_i2d.fits&#39;</span><span class="p">)</span>
 
-<span class="c1"># create a JWST MIRI rampmodel</span>
-<span class="n">dm_ramp</span> <span class="o">=</span> <span class="n">MIRIRampModel</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+<span class="n">coords</span> <span class="o">=</span> <span class="n">get_bigdata</span><span class="p">(</span><span class="s1">&#39;jwst_validation_notebooks&#39;</span><span class="p">,</span>
+                     <span class="s1">&#39;validation_data.zip!&#39;</span><span class="p">,</span>
+                     <span class="s1">&#39;validation_data&#39;</span><span class="p">,</span>
+                     <span class="s1">&#39;resample&#39;</span><span class="p">,</span>
+                     <span class="s1">&#39;jwst_resample_miri_test&#39;</span><span class="p">,</span> 
+                     <span class="s1">&#39;5_star_input_coords.txt&#39;</span><span class="p">)</span>
 
-<span class="n">dm_ramp</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">instrument</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;MIRI&#39;</span>
-<span class="n">dm_ramp</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">observation</span><span class="o">.</span><span class="n">date</span> <span class="o">=</span> <span class="s1">&#39;2018-01-01&#39;</span>
-<span class="n">dm_ramp</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">observation</span><span class="o">.</span><span class="n">time</span> <span class="o">=</span> <span class="s1">&#39;00:00:00&#39;</span>
-<span class="n">dm_ramp</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">subarray</span><span class="o">.</span><span class="n">xstart</span> <span class="o">=</span> <span class="mi">1</span>
-<span class="n">dm_ramp</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">subarray</span><span class="o">.</span><span class="n">xsize</span> <span class="o">=</span> <span class="n">xsize</span>
-<span class="n">dm_ramp</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">subarray</span><span class="o">.</span><span class="n">ystart</span> <span class="o">=</span> <span class="mi">1</span>
-<span class="n">dm_ramp</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">subarray</span><span class="o">.</span><span class="n">ysize</span> <span class="o">=</span> <span class="n">ysize</span>
-<span class="n">dm_ramp</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;Fake data.&#39;</span>
+<span class="k">with</span> <span class="n">DrizProductModel</span><span class="p">(</span><span class="n">file</span><span class="p">)</span> <span class="k">as</span> <span class="n">im</span><span class="p">:</span>
+    <span class="c1"># raises exception if file is not the correct model    </span>
+    <span class="k">pass</span>
+
+<span class="c1"># read in text file with RA and Dec input coordinates</span>
+<span class="n">RA_in</span><span class="p">,</span> <span class="n">Dec_in</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">unpack</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># put RA and Dec into floats</span>
+<span class="n">RA_sim</span> <span class="o">=</span> <span class="n">RA_in</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+<span class="n">Dec_sim</span> <span class="o">=</span> <span class="n">Dec_in</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
 
 
-<span class="c1"># Define shape of dark model</span>
-<span class="n">csize</span> <span class="o">=</span> <span class="p">(</span><span class="n">nints</span><span class="o">*</span><span class="mi">5</span><span class="p">,</span> <span class="n">ngroups</span><span class="p">,</span> <span class="n">ysize</span><span class="p">,</span> <span class="n">xsize</span><span class="p">)</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">nints</span><span class="p">,</span> <span class="n">ngroups</span><span class="p">,</span> <span class="n">ysize</span><span class="p">,</span> <span class="n">xsize</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1e-3</span>
+<span class="c1"># pull out data portion of input file</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">data</span>
 
-<span class="c1"># Create dark datamodel</span>
-<span class="n">dark</span> <span class="o">=</span> <span class="n">DarkMIRIModel</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
-
-<span class="n">dark</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">instrument</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;MIRI&#39;</span>
-<span class="n">dark</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">date</span> <span class="o">=</span> <span class="s1">&#39;2018-01-01&#39;</span>
-<span class="n">dark</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">time</span> <span class="o">=</span> <span class="s1">&#39;00:00:00&#39;</span>
-<span class="n">dark</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">subarray</span><span class="o">.</span><span class="n">xstart</span> <span class="o">=</span> <span class="mi">1</span>
-<span class="n">dark</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">subarray</span><span class="o">.</span><span class="n">xsize</span> <span class="o">=</span> <span class="n">xsize</span>
-<span class="n">dark</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">subarray</span><span class="o">.</span><span class="n">ystart</span> <span class="o">=</span> <span class="mi">1</span>
-<span class="n">dark</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">subarray</span><span class="o">.</span><span class="n">ysize</span> <span class="o">=</span> <span class="n">ysize</span>
-<span class="n">dark</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">exposure</span><span class="o">.</span><span class="n">nframes</span> <span class="o">=</span> <span class="mi">1</span>
-<span class="n">dark</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">exposure</span><span class="o">.</span><span class="n">groupgap</span> <span class="o">=</span> <span class="mi">0</span>
-<span class="n">dark</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;Fake data.&#39;</span>
-<span class="n">dark</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">reftype</span> <span class="o">=</span> <span class="s1">&#39;DarkModel&#39;</span>
-<span class="n">dark</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">pedigree</span> <span class="o">=</span> <span class="s1">&#39;Dummy&#39;</span>
-<span class="n">dark</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">useafter</span> <span class="o">=</span> <span class="s1">&#39;2015-10-01T00:00:00&#39;</span>
-
-<span class="c1"># create raw input data for step</span>
-<span class="n">dm_ramp</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">exposure</span><span class="o">.</span><span class="n">nframes</span> <span class="o">=</span> <span class="mi">1</span>
-<span class="n">dm_ramp</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">exposure</span><span class="o">.</span><span class="n">groupgap</span> <span class="o">=</span> <span class="mi">0</span>
-
-<span class="c1"># populate data array of science cube</span>
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ngroups</span><span class="p">):</span>
-    <span class="n">dm_ramp</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span>
-
-<span class="c1"># populate data array of reference file</span>
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ngroups</span><span class="p">):</span>
-    <span class="n">dark</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span> <span class="o">*</span> <span class="mf">0.1</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p><a id="pipeline_ID"></a></p>
-<h1 id="Run-Dark-Correction-Pipeline-Step">Run Dark Correction Pipeline Step<a class="anchor-link" href="#Run-Dark-Correction-Pipeline-Step">&#182;</a></h1><p>Define the output file and run the linearity correction step of the pipeline.</p>
-<p><a href="#title_ID">Top of Page</a></p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[3]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># run pipeline</span>
-<span class="n">outfile</span> <span class="o">=</span> <span class="n">do_correction</span><span class="p">(</span><span class="n">dm_ramp</span><span class="p">,</span> <span class="n">dark</span><span class="p">)</span>
+<span class="c1"># print stats on input image</span>
+<span class="n">mean</span><span class="p">,</span> <span class="n">median</span><span class="p">,</span> <span class="n">std</span> <span class="o">=</span> <span class="n">sigma_clipped_stats</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">200.0</span><span class="p">,</span> <span class="n">maxiters</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>  <span class="c1"># default sigma=3</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">mean</span><span class="p">,</span> <span class="n">median</span><span class="p">,</span> <span class="n">std</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -13290,8 +13297,23 @@ div#notebook {
 
 
 <div class="output_subarea output_stream output_stderr output_text">
-<pre>2019-05-17 14:06:17,584 - stpipe - INFO - Science data nints=1, ngroups=7, nframes=1, groupgap=0
-2019-05-17 14:06:17,585 - stpipe - INFO - Dark data nints=1, ngroups=7, nframes=1, groupgap=0
+<pre>/srv/jenkins/workspace/Notebooks/jwst_validation_notebooks/miniconda3/envs/jwst_validation_notebooks/lib/python3.6/site-packages/asdf/asdf.py:202: UserWarning: File was created with extension &#39;astropy.io.misc.asdf.extension.AstropyExtension&#39; from package astropy-3.2.dev23800, but older version astropy-3.1.2 is installed
+  warnings.warn(fmt_msg)
+/srv/jenkins/workspace/Notebooks/jwst_validation_notebooks/miniconda3/envs/jwst_validation_notebooks/lib/python3.6/site-packages/asdf/asdf.py:202: UserWarning: File was created with extension &#39;astropy.io.misc.asdf.extension.AstropyAsdfExtension&#39; from package astropy-3.2.dev23800, but older version astropy-3.1.2 is installed
+  warnings.warn(fmt_msg)
+/srv/jenkins/workspace/Notebooks/jwst_validation_notebooks/miniconda3/envs/jwst_validation_notebooks/lib/python3.6/site-packages/asdf/asdf.py:202: UserWarning: File was created with extension &#39;asdf.extension.BuiltinExtension&#39; from package asdf-2.4.0.dev1705, but older version asdf-2.3.3 is installed
+  warnings.warn(fmt_msg)
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>-4.3961015 -6.4552855 5.1217713
 </pre>
 </div>
 </div>
@@ -13303,47 +13325,32 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><a id="slope_ID"></a></p>
-<h1 id="Check-the-slope-of-the-median-ramp-for-the-detector">Check the slope of the median ramp for the detector<a class="anchor-link" href="#Check-the-slope-of-the-median-ramp-for-the-detector">&#182;</a></h1><p>The count rate of the dark subtracted ramp should be small (&lt; 0.1?)</p>
-<p><a href="#title_ID">Top of Page</a></p>
+<h4 id="Run-DAOStar-finder-to-find-sources-in-the-image-and-examine-the-image-and-positions-marked.">Run DAOStar finder to find sources in the image and examine the image and positions marked.<a class="anchor-link" href="#Run-DAOStar-finder-to-find-sources-in-the-image-and-examine-the-image-and-positions-marked.">&#182;</a></h4><p>The block of code below will find the sources in the image, create apertures for each source found, and output the table of x, y coordinates along with the peak pixel value. It will also show a scaled version of the image and mark in blue the positions of sources found.</p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">med_in</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">dm_ramp</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
-<span class="n">med_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">outfile</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:,],</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Run DAOStarFinder to find sources in image</span>
 
-<span class="n">groups</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">med_in</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">daofind</span> <span class="o">=</span> <span class="n">DAOStarFinder</span><span class="p">(</span><span class="n">fwhm</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">10.</span><span class="o">*</span><span class="n">std</span><span class="p">)</span>    <span class="c1"># default threshold=5*std, fwhm=3</span>
+<span class="n">sources</span> <span class="o">=</span> <span class="n">daofind</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>    
+<span class="nb">print</span><span class="p">(</span><span class="n">sources</span><span class="p">[</span><span class="s1">&#39;xcentroid&#39;</span><span class="p">,</span><span class="s1">&#39;ycentroid&#39;</span><span class="p">,</span><span class="s1">&#39;peak&#39;</span><span class="p">])</span>   
 
-<span class="n">slope_in</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyfit</span><span class="p">(</span><span class="n">groups</span><span class="p">,</span> <span class="n">med_in</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<span class="n">slope_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyfit</span><span class="p">(</span><span class="n">groups</span><span class="p">,</span> <span class="n">med_out</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="c1"># create apertures for sources</span>
 
-<span class="nb">print</span><span class="p">(</span>
-<span class="s2">&quot;Slope of median ramp before dark subtraction: </span><span class="si">{}</span><span class="s2"> counts/group&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-    <span class="n">slope_in</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
-<span class="nb">print</span><span class="p">(</span>
-<span class="s2">&quot;Slope of median ramp after dark subtraction: </span><span class="si">{}</span><span class="s2"> counts/group&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-    <span class="n">slope_out</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+<span class="n">positions</span> <span class="o">=</span> <span class="p">(</span><span class="n">sources</span><span class="p">[</span><span class="s1">&#39;xcentroid&#39;</span><span class="p">],</span> <span class="n">sources</span><span class="p">[</span><span class="s1">&#39;ycentroid&#39;</span><span class="p">])</span>
+<span class="n">apertures</span> <span class="o">=</span> <span class="n">CircularAperture</span><span class="p">(</span><span class="n">positions</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mf">4.</span><span class="p">)</span>
 
-<span class="c1"># Set plot params</span>
-<span class="c1"># plt.rc(&#39;font&#39;, weight=&#39;bold&#39;)</span>
-<span class="c1"># plt.rc(&#39;xtick.major&#39;, size=5, pad=7)</span>
-<span class="c1"># plt.rc(&#39;xtick&#39;, labelsize=15)</span>
-<span class="c1"># plt.rc(&#39;ytick&#39;, labelsize=15)</span>
-
-<span class="c1"># plt.figure(figsize=(20,10))</span>
-<span class="c1"># plt.grid(True, ls=&#39;--&#39;)</span>
-<span class="c1"># plt.title(&#39;Random Data&#39;, fontsize=20, fontweight=&#39;bold&#39;)</span>
-<span class="c1"># plt.plot(med_in, c=&#39;k&#39;, label= &#39;Ramp PreDarkCorr&#39;)</span>
-<span class="c1"># plt.plot(med_out,c=&#39;r&#39;, label=&#39;Ramp PostDarkCorr&#39;)</span>
-<span class="c1"># plt.xlabel(&#39;Group Number&#39;, fontsize=20, fontweight=&#39;bold&#39;)</span>
-<span class="c1"># plt.ylabel(&#39;Counts&#39;, fontsize=20, fontweight=&#39;bold&#39;)</span>
-<span class="c1"># plt.legend(fontsize=&#39;xx-large&#39;)</span>
+<span class="c1"># mark sources on image frame to see if the correct sources were found</span>
+<span class="n">norm</span> <span class="o">=</span> <span class="n">ImageNormalize</span><span class="p">(</span><span class="n">stretch</span><span class="o">=</span><span class="n">SqrtStretch</span><span class="p">())</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;Greys&#39;</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">vmax</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">)</span>
+<span class="n">apertures</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 
     </div>
@@ -13360,8 +13367,84 @@ div#notebook {
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Slope of median ramp before dark subtraction: 1.0 counts/group
-Slope of median ramp after dark subtraction: 0.9000000102179392 counts/group
+<pre>    xcentroid         ycentroid             peak      
+----------------- ------------------ -----------------
+ 953.727317871818  166.1681850252048 1860.981689453125
+521.0982001951338 168.40612727561526 850.3464965820312
+736.0652710471262  598.7929961543925 1809.578369140625
+ 449.687020548392 1012.4796960670649  1838.53271484375
+953.7404005848612 1016.7504162926165 2273.949951171875
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+
+
+<div class="output_png output_subarea ">
+<img src="data:image/png;base64,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
+"
+>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Put-x,-y-coordinates-into-RA-and-Dec-using-the-wcs-information-from-the-files.">Put x, y coordinates into RA and Dec using the wcs information from the files.<a class="anchor-link" href="#Put-x,-y-coordinates-into-RA-and-Dec-using-the-wcs-information-from-the-files.">&#182;</a></h4><p>The output of the next block of code should be a table showing the x and y centroid positions as well as the associated RA and Dec values.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># using wcs info from images, put coordinates into RA, Dec</span>
+<span class="n">ra</span><span class="p">,</span> <span class="n">dec</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">wcs</span><span class="p">(</span><span class="n">sources</span><span class="p">[</span><span class="s1">&#39;xcentroid&#39;</span><span class="p">],</span> <span class="n">sources</span><span class="p">[</span><span class="s1">&#39;ycentroid&#39;</span><span class="p">])</span>
+
+<span class="c1"># add RA, Dec to sources table</span>
+
+<span class="n">ra_col</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;RA&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">ra</span><span class="p">)</span>
+<span class="n">dec_col</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Dec&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">dec</span><span class="p">)</span>
+<span class="n">sources</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="n">ra_col</span><span class="p">)</span>
+<span class="n">sources</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="n">dec_col</span><span class="p">)</span>
+
+<span class="c1"># print RA, Dec for each x, y position found</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">sources</span><span class="p">[</span><span class="s1">&#39;xcentroid&#39;</span><span class="p">,</span> <span class="s1">&#39;ycentroid&#39;</span><span class="p">,</span> <span class="s1">&#39;RA&#39;</span><span class="p">,</span> <span class="s1">&#39;Dec&#39;</span><span class="p">])</span>   
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>    xcentroid         ycentroid      ...           Dec          
+----------------- ------------------ ... -----------------------
+ 953.727317871818  166.1681850252048 ...   -0.013338462166444904
+521.0982001951338 168.40612727561526 ...   -0.013269478630660027
+736.0652710471262  598.7929961543925 ... -2.9442501928795646e-06
+ 449.687020548392 1012.4796960670649 ...    0.012748812794109598
+953.7404005848612 1016.7504162926165 ...    0.012880456071730433
 </pre>
 </div>
 </div>
@@ -13373,9 +13456,76 @@ Slope of median ramp after dark subtraction: 0.9000000102179392 counts/group
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Compare-the-RA-and-Dec-positions-used-to-create-the-simulated-data-to-the-values-found-in-the-output-image.">Compare the RA and Dec positions used to create the simulated data to the values found in the output image.<a class="anchor-link" href="#Compare-the-RA-and-Dec-positions-used-to-create-the-simulated-data-to-the-values-found-in-the-output-image.">&#182;</a></h4><p>Difference each set of RA and Dec coordinates in both the input list and the found coordinates, taking into account any angles close to 360/0 degrees. If the difference for both the RA and Dec are below a set tolerance, then the positions match. Take the matched positions and convert the differences from degrees to milli arcseconds, and output the RA and Dec positions as well as the differences.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Compare input RA, Dec to found RA, Dec</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;       RA found       Dec found    RA_Diff (mas)  Dec_diff (mas)&#39;</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">RA_sim</span><span class="p">)):</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">ra</span><span class="p">)):</span>
+        <span class="n">ra_diff</span> <span class="o">=</span> <span class="mi">180</span> <span class="o">-</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">RA_sim</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">ra</span><span class="p">[</span><span class="n">j</span><span class="p">])</span><span class="o">-</span><span class="mi">180</span><span class="p">)</span>
+        <span class="n">dec_diff</span> <span class="o">=</span> <span class="mi">180</span> <span class="o">-</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">Dec_sim</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">dec</span><span class="p">[</span><span class="n">j</span><span class="p">])</span><span class="o">-</span><span class="mi">180</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">ra_diff</span> <span class="o">&lt;</span> <span class="mf">1e-5</span> <span class="ow">and</span> <span class="n">dec_diff</span> <span class="o">&lt;</span> <span class="mf">1e-5</span><span class="p">:</span>
+            <span class="c1"># put differences in milliarcseconds</span>
+            <span class="n">ra_diff</span> <span class="o">=</span> <span class="n">ra_diff</span> <span class="o">*</span> <span class="mi">3600000</span>
+            <span class="n">dec_diff</span> <span class="o">=</span> <span class="n">dec_diff</span> <span class="o">*</span> <span class="mi">3600000</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{:15.6f}</span><span class="s1"> </span><span class="si">{:15.6f}</span><span class="s1"> </span><span class="si">{:15.6f}</span><span class="s1"> </span><span class="si">{:15.6f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ra</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">dec</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">ra_diff</span><span class="p">,</span> <span class="n">dec_diff</span><span class="p">))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>       RA found       Dec found    RA_Diff (mas)  Dec_diff (mas)
+     359.993290       -0.013338        0.052928        2.815799
+       0.006626       -0.013269        2.684439        8.692670
+     359.999999       -0.000003        2.352124       10.599301
+       0.008827        0.012749        2.899524        2.540859
+     359.993290        0.012880        1.504383        3.826542
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><a id="residual_ID"></a></p>
+<h1 id="Compare-output-RA-and-Dec-to-expected-values">Compare output RA and Dec to expected values<a class="anchor-link" href="#Compare-output-RA-and-Dec-to-expected-values">&#182;</a></h1><p>The output RA and Dec coordinates should match the input RA and Dec coordinates to within 1/10 of a PSF FWHM (~0.03 arcsec for F770W).</p>
+<p>Output RA_Diff and Dec_diff above should be on order of 30 or fewer milliarcseconds.</p>
+<p><a href="#title_ID">Top of Page</a></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <p><a id="about_ID"></a></p>
-<h2 id="About-this-Notebook">About this Notebook<a class="anchor-link" href="#About-this-Notebook">&#182;</a></h2><p><strong>Author:</strong> Mees Fix, RIA MESA Branch
-<br><strong>Updated On:</strong> 03/01/2019</p>
+<h2 id="About-this-Notebook">About this Notebook<a class="anchor-link" href="#About-this-Notebook">&#182;</a></h2><p><strong>Author:</strong> M. Cracraft, Research and Instrument Scientist II, INS/MIRI
+<br><strong>Updated On:</strong> 05/17/2019</p>
 
 </div>
 </div>
