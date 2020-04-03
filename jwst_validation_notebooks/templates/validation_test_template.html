@@ -2,7 +2,7 @@
 <html>
 <head><meta charset="utf-8" />
 
-<title>exec_jwst_resample_miri_testing</title>
+<title>exec_validation_test_template</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
@@ -13072,7 +13072,7 @@ div#notebook {
     <!-- End of mathjax configuration -->
 
 <!-- base css for whole site -->
-<link rel="stylesheet" href="../../pages.css"></head>
+<link rel="stylesheet" href="../pages.css"></head>
 <body>
   <div tabindex="-1" id="notebook" class="border-box-sizing">
     <div class="container" id="notebook-container">
@@ -13081,63 +13081,12 @@ div#notebook {
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><a id="title_ID"></a></p>
-<h1 id="JWST-Pipeline-Validation-Testing-Notebook:-Calwebb_Image3,-Resample-step">JWST Pipeline Validation Testing Notebook: Calwebb_Image3, Resample step<a class="anchor-link" href="#JWST-Pipeline-Validation-Testing-Notebook:-Calwebb_Image3,-Resample-step">&#182;</a></h1><p><span style="color:red"> **Instruments Affected**</span>: FGS, MIRI, NIRCam, NIRISS, NIRSpec</p>
-<p>Tested on MIRI Simulated data</p>
+<h1 id="JWST-Pipeline-Validation-Testing-Notebook:-Descriptive-Name-of-Test-You-Are-Performing">JWST Pipeline Validation Testing Notebook: Descriptive Name of Test You Are Performing<a class="anchor-link" href="#JWST-Pipeline-Validation-Testing-Notebook:-Descriptive-Name-of-Test-You-Are-Performing">&#182;</a></h1><p><span style="color:red"> **Instruments Affected**</span>: FGS, MIRI, NIRCam, NIRISS, NIRSpec</p>
 <h3 id="Table-of-Contents">Table of Contents<a class="anchor-link" href="#Table-of-Contents">&#182;</a></h3><div style="text-align: left"> 
 
-<br>  [Introduction](#intro_ID) <br> [Run JWST Pipelines](#pipeline_ID) <br> [Imports](#imports_ID) <br> [Find Stars in Image and Determine their Coordinates](#runscript_ID) <br> [Compare RA and Dec to expected Values](#residual_ID) <br> [About This Notebook](#about_ID) <br>
-
-
-</div>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p><a id="intro_ID"></a></p>
-<h1 id="Introduction">Introduction<a class="anchor-link" href="#Introduction">&#182;</a></h1><p>This test is designed to test the resample step in the calwebb_image3 pipeline. At the end of the calwebb_image3 pipeline, the set of files defined in an association table will be distortion corrected and combined. Resample is the step that applies the distortion correction using the drizzling algorithm (as defined in the DrizzlePac handbook) and combines the listed files. For more information on the pipeline step visit the links below.</p>
-<p>Step description: <a href="https://jwst-pipeline.readthedocs.io/en/latest/jwst/resample/main.html">https://jwst-pipeline.readthedocs.io/en/latest/jwst/resample/main.html</a></p>
-<p>Pipeline code: <a href="https://github.com/spacetelescope/jwst/tree/master/jwst/resample">https://github.com/spacetelescope/jwst/tree/master/jwst/resample</a></p>
-<p>The data for this test were created with the MIRI Data Simulator, and the documentation for that code can be found here: <a href="http://miri.ster.kuleuven.be/bin/view/Public/MIRISim_Public">http://miri.ster.kuleuven.be/bin/view/Public/MIRISim_Public</a></p>
-<h3 id="Calibration-WG-Requested-Algorithm:">Calibration WG Requested Algorithm:<a class="anchor-link" href="#Calibration-WG-Requested-Algorithm:">&#182;</a></h3><p>A short description and link to the page: <a href="https://outerspace.stsci.edu/display/JWSTCC/Vanilla+Image+Combination">https://outerspace.stsci.edu/display/JWSTCC/Vanilla+Image+Combination</a></p>
-<h3 id="Defining-Terms">Defining Terms<a class="anchor-link" href="#Defining-Terms">&#182;</a></h3><p>Definition of terms or acronymns.</p>
-<p>JWST: James Webb Space Telescope</p>
-<p>MIRI: Mid-Infrared Instrument</p>
-<p>MIRISim: MIRI Data Simulator</p>
-<h3 id="Description-of-test">Description of test<a class="anchor-link" href="#Description-of-test">&#182;</a></h3><p>This test is performed by creating a set of simulated data with five point sources located at specified coordinates. The simulator puts in the expected distortion, so the initial output data comes out of the simulator in distorted coordinates. When this data is then run through calwebb_detector1, calwebb_image2 and calwebbb_image3, the combined, undistorted image should have the five point sources registered at the expected locations. In flight, this test can be repeated with known stars that should be found at their expected coordinates.</p>
-<h3 id="Create-the-data-for-testing">Create the data for testing<a class="anchor-link" href="#Create-the-data-for-testing">&#182;</a></h3><p>The set of data used in this particular test were created with the MIRI Data Simulator (MIRISim). Referring to the MIRISim link, you can see how to set up and run the simulator to re-create the input files if you wish. The data was run with a scene.ini file that specified what the scene should look like, with coordinates for the stars given in units of arcsecond offsets from the center of the field of view. The scene.ini file as well as the setup files simuation.ini and simulator.ini are located in the same directory as the data.</p>
-<p>Once in the mirisim conda environment, the simulation is run with the command line:</p>
-<blockquote><p>mirisim simulation.ini</p>
-</blockquote>
-<p>The simulator created four files, two exposures each at two different dither positions, using the F770W filter. Make sure the WCSAXES header keyword in the SCI extension is set to 2 and not 4. If it is set to 4, change it to 2.</p>
-<p><a href="#title_ID">Top of Page</a></p>
+<br> [Imports](#imports_ID) <br> [Introduction](#intro_ID) <br> [Get Documentaion String for Markdown Blocks](#markdown_from_docs) <br> [Loading Data](#data_ID) <br> [Run JWST Pipeline](#pipeline_ID) <br> [Create Figure or Print Output](#residual_ID) <br> [About This Notebook](#about_ID) <br>
 
 </div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p><a id="pipeline_ID"></a></p>
-<h2 id="Run-JWST-Pipelines">Run JWST Pipelines<a class="anchor-link" href="#Run-JWST-Pipelines">&#182;</a></h2><p>The four files were then run individually through the calwebb_detector1 and calwebb_image2 pipelines. When running the calwebb_detector1 pipeline, increase the threshold for a detection in the jump step from 4 sigma to 10 sigma to avoid a current issue where the jump detection step flags a large percentage of pixels as jumps. This can be done on the command line. (commands to be typed start with $)</p>
-<p>The pipelines can be run on the command line with the following commands or put into a script while using the pipeline conda environment.</p>
-<p>$ strun calwebb_detector1.cfg filename --steps.jump.rejection_threshold 10.0</p>
-<p>The output of the calwebb_detector1 pipeline is a set of four *rate.fits files which will then be run through the calwebb_image2 pipeline.</p>
-<p>$ strun calwebb_image2.cfg filename</p>
-<p>The output of the calwebb_image2 pipeline was then a set of four *cal.fits files. An association table was created that included these four files as input, and then the files and the association table were run through the calwebb_image3 pipeline.</p>
-<p>The association table can be created with the following command in the pipeline conda environment.</p>
-<p>$  asn_from_list det_image_seq1_MIRIMAGE_F770Wexp1_rate10_cal.fits det_image_seq1_MIRIMAGE_F770Wexp2_rate10_cal.fits det_image_seq2_MIRIMAGE_F770Wexp1_rate10_cal.fits det_image_seq2_MIRIMAGE_F770Wexp2_rate10_cal.fits -o 'det_dithered_5stars.json' --product-name='det_dithered_5stars.fits'</p>
-<p>The simulated data at this point (after calwebb_detector1 and calwebb_image2) are:</p>
-<p>det_image_seq1_MIRIMAGE_F770Wexp1_rate10_cal.fits</p>
-<p>det_image_seq1_MIRIMAGE_F770Wexp2_rate10_cal.fits</p>
-<p>det_image_seq2_MIRIMAGE_F770Wexp1_rate10_cal.fits</p>
-<p>det_image_seq2_MIRIMAGE_F770Wexp2_rate10_cal.fits</p>
-<p>The association table linking these files is det_dithered_5stars.json</p>
-<p>These files can be run through the calwebb_image3 pipeline with a single command line in the pipeline astroconda environment. For this particular test to work, set the tweakreg step to be skipped when running calwebb_image3.</p>
-<p>$ strun calwebb_image3.cfg det_dithered_5stars.json --steps.tweakreg.skip True</p>
-<p><a href="#title_ID">Top of Page</a></p>
-
 </div>
 </div>
 </div>
@@ -13145,17 +13094,13 @@ div#notebook {
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><a id="imports_ID"></a></p>
-<h1 id="Imports">Imports<a class="anchor-link" href="#Imports">&#182;</a></h1><p>The following packages will need to be imported for the scripts to work.</p>
+<h1 id="Imports">Imports<a class="anchor-link" href="#Imports">&#182;</a></h1><p>List the library imports and why they are relevant to this notebook.</p>
 <ul>
-<li>astropy.io for opening files</li>
-<li>astropy.stats for sigma clipping routine</li>
-<li>astropy.visualization for image plotting</li>
-<li>ci_watson.artifactory_helpers.get_bigdata for data retrieval</li>
-<li>jwst.datamodels for opening files as a JWST Datamodel</li>
-<li>numpy for calculations</li>
+<li>astropy.io for opening fits files</li>
+<li>inspect to get the docstring of our objects.</li>
+<li>jwst.datamodels for building model for JWST Pipeline</li>
+<li>jwst.module.PipelineStep is the pipeline step being tested</li>
 <li>matplotlib.pyplot.plt to generate plot</li>
-<li>os for path information  </li>
-<li>photutils for star finding and aperture photometry</li>
 </ul>
 <p><a href="#title_ID">Top of Page</a></p>
 
@@ -13167,18 +13112,11 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[1]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">astropy.io</span> <span class="kn">import</span> <span class="n">ascii</span>
-<span class="kn">from</span> <span class="nn">astropy.stats</span> <span class="kn">import</span> <span class="n">sigma_clipped_stats</span>
-<span class="kn">from</span> <span class="nn">astropy.table</span> <span class="kn">import</span> <span class="n">Column</span>
-<span class="kn">from</span> <span class="nn">astropy.visualization</span> <span class="kn">import</span> <span class="n">SqrtStretch</span>
-<span class="kn">from</span> <span class="nn">astropy.visualization.mpl_normalize</span> <span class="kn">import</span> <span class="n">ImageNormalize</span>
-<span class="kn">from</span> <span class="nn">ci_watson.artifactory_helpers</span> <span class="kn">import</span> <span class="n">get_bigdata</span>
-<span class="kn">from</span> <span class="nn">jwst.datamodels</span> <span class="kn">import</span> <span class="n">DrizProductModel</span>
-<span class="c1">#from jwst.pipeline import Image3Pipeline</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">photutils</span> <span class="kn">import</span> <span class="n">CircularAperture</span><span class="p">,</span> <span class="n">DAOStarFinder</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># from astropy.io import fits</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">from</span> <span class="nn">jwst.datamodels</span> <span class="kn">import</span> <span class="n">RampModel</span>
+<span class="c1"># from jwst.module import PipelineStep</span>
+<span class="c1"># import matplotlib.pyplot as plt</span>
 </pre></div>
 
     </div>
@@ -13189,8 +13127,15 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><a id="runscript_ID"></a></p>
-<h1 id="Find-stars-in-image-and-determine-their-coordinates">Find stars in image and determine their coordinates<a class="anchor-link" href="#Find-stars-in-image-and-determine-their-coordinates">&#182;</a></h1><p>The output of the pipeline command in the previous step (given our association table) is called det_dithered_5stars_i2d.fits. This file is in the format of a JWST Data model type of DrizProductModel and should be opened as such. It is this file that we will use for source finding and to determine whether the stars are found in the expected locations. The i2d file and the associated text file containing the input coordinates of the stars can be found in artifactory.</p>
+<p><a id="intro_ID"></a></p>
+<h1 id="Introduction">Introduction<a class="anchor-link" href="#Introduction">&#182;</a></h1><p>Give a short introduction explaining the purpose for this notebook. Here is an example:</p>
+<p>For this test we are using the source catalog step. This step creates a final catalog of source photometry and morphologies. Here we are testing the step for this that and the other. For more information on the pipeline step visit the links below.</p>
+<p>Step description: <a href="https://jwst-pipeline.readthedocs.io/en/latest/jwst/source_catalog/index.html">https://jwst-pipeline.readthedocs.io/en/latest/jwst/source_catalog/index.html</a></p>
+<p>Pipeline code: <a href="https://github.com/spacetelescope/jwst/tree/master/jwst/source_catalog">https://github.com/spacetelescope/jwst/tree/master/jwst/source_catalog</a></p>
+<h3 id="Calibration-WG-Requested-Algorithm:">Calibration WG Requested Algorithm:<a class="anchor-link" href="#Calibration-WG-Requested-Algorithm:">&#182;</a></h3><p>A short description and link to the page: <a href="https://outerspace.stsci.edu/display/JWSTCC/Vanilla+Point+Source+Catalog">https://outerspace.stsci.edu/display/JWSTCC/Vanilla+Point+Source+Catalog</a> </p>
+<h3 id="Defining-Term">Defining Term<a class="anchor-link" href="#Defining-Term">&#182;</a></h3><p>Here is where you will define terms or acronymns that may not be known a general audience (ie a new employee to the institute or an external user). For example</p>
+<p>JWST: James Webb Space Telescope</p>
+<p>NIRSpec: Near-Infrared Spectrogragh</p>
 <p><a href="#title_ID">Top of Page</a></p>
 
 </div>
@@ -13199,7 +13144,8 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Read-in-combined-i2d-data-file-and-list-of-coordinates">Read in combined i2d data file and list of coordinates<a class="anchor-link" href="#Read-in-combined-i2d-data-file-and-list-of-coordinates">&#182;</a></h4>
+<p><a id="markdown_from_docs"></a></p>
+<h1 id="Get-Documentaion-String-for-Markdown-Blocks">Get Documentaion String for Markdown Blocks<a class="anchor-link" href="#Get-Documentaion-String-for-Markdown-Blocks">&#182;</a></h1>
 </div>
 </div>
 </div>
@@ -13208,61 +13154,14 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Read in input i2d file</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Get raw python docstring</span>
+<span class="n">raw</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getdoc</span><span class="p">(</span><span class="n">RampModel</span><span class="p">)</span>
 
-<span class="n">file</span> <span class="o">=</span> <span class="n">get_bigdata</span><span class="p">(</span><span class="s1">&#39;jwst_validation_notebooks&#39;</span><span class="p">,</span>
-                   <span class="s1">&#39;validation_data.zip!&#39;</span><span class="p">,</span>
-                   <span class="s1">&#39;validation_data&#39;</span><span class="p">,</span>
-                   <span class="s1">&#39;resample&#39;</span><span class="p">,</span>
-                   <span class="s1">&#39;jwst_resample_miri_test&#39;</span><span class="p">,</span>
-                   <span class="s1">&#39;det_dithered_5stars_i2d.fits&#39;</span><span class="p">)</span>
-
-<span class="n">coords</span> <span class="o">=</span> <span class="n">get_bigdata</span><span class="p">(</span><span class="s1">&#39;jwst_validation_notebooks&#39;</span><span class="p">,</span>
-                     <span class="s1">&#39;validation_data.zip!&#39;</span><span class="p">,</span>
-                     <span class="s1">&#39;validation_data&#39;</span><span class="p">,</span>
-                     <span class="s1">&#39;resample&#39;</span><span class="p">,</span>
-                     <span class="s1">&#39;jwst_resample_miri_test&#39;</span><span class="p">,</span> 
-                     <span class="s1">&#39;5_star_input_coords.txt&#39;</span><span class="p">)</span>
-
-<span class="k">with</span> <span class="n">DrizProductModel</span><span class="p">(</span><span class="n">file</span><span class="p">)</span> <span class="k">as</span> <span class="n">im</span><span class="p">:</span>
-    <span class="c1"># raises exception if file is not the correct model    </span>
-    <span class="k">pass</span>
-
-<span class="c1"># read in text file with RA and Dec input coordinates</span>
-<span class="n">RA_in</span><span class="p">,</span> <span class="n">Dec_in</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">unpack</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-<span class="c1"># put RA and Dec into floats</span>
-<span class="n">RA_sim</span> <span class="o">=</span> <span class="n">RA_in</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
-<span class="n">Dec_sim</span> <span class="o">=</span> <span class="n">Dec_in</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
-
-
-<span class="c1"># pull out data portion of input file</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">data</span>
-
-<span class="c1"># print stats on input image</span>
-<span class="n">mean</span><span class="p">,</span> <span class="n">median</span><span class="p">,</span> <span class="n">std</span> <span class="o">=</span> <span class="n">sigma_clipped_stats</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">200.0</span><span class="p">,</span> <span class="n">maxiters</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>  <span class="c1"># default sigma=3</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">mean</span><span class="p">,</span> <span class="n">median</span><span class="p">,</span> <span class="n">std</span><span class="p">)</span>
+<span class="c1"># To convert to markdown, you need convert line breaks from \n to &lt;br /&gt;</span>
+<span class="n">markdown_text</span> <span class="o">=</span> <span class="s2">&quot;&lt;br /&gt;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">raw</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">))</span>
 </pre></div>
 
     </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>-4.3961015 -6.4552855 5.1217713
-</pre>
-</div>
-</div>
-
 </div>
 </div>
 
@@ -13270,7 +13169,20 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Run-DAOStar-finder-to-find-sources-in-the-image-and-examine-the-image-and-positions-marked.">Run DAOStar finder to find sources in the image and examine the image and positions marked.<a class="anchor-link" href="#Run-DAOStar-finder-to-find-sources-in-the-image-and-examine-the-image-and-positions-marked.">&#182;</a></h4><p>The block of code below will find the sources in the image, create apertures for each source found, and output the table of x, y coordinates along with the peak pixel value. It will also show a scaled version of the image and mark in blue the positions of sources found.</p>
+<h2 id="MiriRampModel">MiriRampModel<a class="anchor-link" href="#MiriRampModel">&#182;</a></h2><hr>
+<p>{{ markdown_text }}</p>
+<hr>
+<p><span style="color:red">**To get the markdown to print (double click this cell) you need to put the markdown_text variable in to double curly braces. Make sure you execute this cell before pushing changes!**</span></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><a id="data_ID"></a></p>
+<h1 id="Loading-Data">Loading Data<a class="anchor-link" href="#Loading-Data">&#182;</a></h1><p>Describe the data that is required for testing and why you chose it. Also mention whether it is Fake, Ground Test, Simulated Data, or on orbit data (when launched)</p>
+<p><a href="#title_ID">Top of Page</a></p>
 
 </div>
 </div>
@@ -13280,75 +13192,12 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[3]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Run DAOStarFinder to find sources in image</span>
-
-<span class="n">daofind</span> <span class="o">=</span> <span class="n">DAOStarFinder</span><span class="p">(</span><span class="n">fwhm</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">10.</span><span class="o">*</span><span class="n">std</span><span class="p">)</span>    <span class="c1"># default threshold=5*std, fwhm=3</span>
-<span class="n">sources</span> <span class="o">=</span> <span class="n">daofind</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>    
-<span class="nb">print</span><span class="p">(</span><span class="n">sources</span><span class="p">[</span><span class="s1">&#39;xcentroid&#39;</span><span class="p">,</span><span class="s1">&#39;ycentroid&#39;</span><span class="p">,</span><span class="s1">&#39;peak&#39;</span><span class="p">])</span>   
-
-<span class="c1"># create apertures for sources</span>
-
-<span class="n">positions</span> <span class="o">=</span> <span class="p">(</span><span class="n">sources</span><span class="p">[</span><span class="s1">&#39;xcentroid&#39;</span><span class="p">],</span> <span class="n">sources</span><span class="p">[</span><span class="s1">&#39;ycentroid&#39;</span><span class="p">])</span>
-<span class="n">apertures</span> <span class="o">=</span> <span class="n">CircularAperture</span><span class="p">(</span><span class="n">positions</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mf">4.</span><span class="p">)</span>
-
-<span class="c1"># mark sources on image frame to see if the correct sources were found</span>
-<span class="n">norm</span> <span class="o">=</span> <span class="n">ImageNormalize</span><span class="p">(</span><span class="n">stretch</span><span class="o">=</span><span class="n">SqrtStretch</span><span class="p">())</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;Greys&#39;</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">vmax</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">)</span>
-<span class="n">apertures</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Some code to get data</span>
+<span class="c1"># hdu = fits.open(data_file)</span>
+<span class="c1"># dm = some code to create datamodel</span>
 </pre></div>
 
     </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>    xcentroid         ycentroid             peak      
------------------ ------------------ -----------------
- 953.727317871818  166.1681850252048 1860.981689453125
-521.0982001951338 168.40612727561526 850.3464965820312
-736.0652710471262  598.7929961543925 1809.578369140625
- 449.687020548392 1012.4796960670649  1838.53271484375
-953.7404005848612 1016.7504162926165 2273.949951171875
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stderr output_text">
-<pre>WARNING: AstropyDeprecationWarning: Inputing positions shaped as 2xN is deprecated and will be removed in v0.8.  Positions should be a (x, y) pixel position or a list or array of (x, y) pixel positions, e.g. [(x1, y1), (x2, y2), (x3, y3)]. [photutils.aperture.attributes]
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-
-
-<div class="output_png output_subarea ">
-<img src="data:image/png;base64,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
-"
->
-</div>
-
-</div>
-
 </div>
 </div>
 
@@ -13356,7 +13205,9 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Put-x,-y-coordinates-into-RA-and-Dec-using-the-wcs-information-from-the-files.">Put x, y coordinates into RA and Dec using the wcs information from the files.<a class="anchor-link" href="#Put-x,-y-coordinates-into-RA-and-Dec-using-the-wcs-information-from-the-files.">&#182;</a></h4><p>The output of the next block of code should be a table showing the x and y centroid positions as well as the associated RA and Dec values.</p>
+<p><a id="pipeline_ID"></a></p>
+<h1 id="Run-JWST-Pipeline">Run JWST Pipeline<a class="anchor-link" href="#Run-JWST-Pipeline">&#182;</a></h1><p>Run the JWST pipeline step you are interested in testing</p>
+<p><a href="#title_ID">Top of Page</a></p>
 
 </div>
 </div>
@@ -13366,45 +13217,10 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[4]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># using wcs info from images, put coordinates into RA, Dec</span>
-<span class="n">ra</span><span class="p">,</span> <span class="n">dec</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">wcs</span><span class="p">(</span><span class="n">sources</span><span class="p">[</span><span class="s1">&#39;xcentroid&#39;</span><span class="p">],</span> <span class="n">sources</span><span class="p">[</span><span class="s1">&#39;ycentroid&#39;</span><span class="p">])</span>
-
-<span class="c1"># add RA, Dec to sources table</span>
-
-<span class="n">ra_col</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;RA&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">ra</span><span class="p">)</span>
-<span class="n">dec_col</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Dec&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">dec</span><span class="p">)</span>
-<span class="n">sources</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="n">ra_col</span><span class="p">)</span>
-<span class="n">sources</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="n">dec_col</span><span class="p">)</span>
-
-<span class="c1"># print RA, Dec for each x, y position found</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">sources</span><span class="p">[</span><span class="s1">&#39;xcentroid&#39;</span><span class="p">,</span> <span class="s1">&#39;ycentroid&#39;</span><span class="p">,</span> <span class="s1">&#39;RA&#39;</span><span class="p">,</span> <span class="s1">&#39;Dec&#39;</span><span class="p">])</span>   
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#output = PipelineStep.call(dm)</span>
 </pre></div>
 
     </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>    xcentroid         ycentroid      ...           Dec          
------------------ ------------------ ... -----------------------
- 953.727317871818  166.1681850252048 ...   -0.013338462166444904
-521.0982001951338 168.40612727561526 ...   -0.013269478630660027
-736.0652710471262  598.7929961543925 ... -2.9442501928795646e-06
- 449.687020548392 1012.4796960670649 ...    0.012748812794109598
-953.7404005848612 1016.7504162926165 ...    0.012880456071730433
-</pre>
-</div>
-</div>
-
 </div>
 </div>
 
@@ -13412,7 +13228,15 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Compare-the-RA-and-Dec-positions-used-to-create-the-simulated-data-to-the-values-found-in-the-output-image.">Compare the RA and Dec positions used to create the simulated data to the values found in the output image.<a class="anchor-link" href="#Compare-the-RA-and-Dec-positions-used-to-create-the-simulated-data-to-the-values-found-in-the-output-image.">&#182;</a></h4><p>Difference each set of RA and Dec coordinates in both the input list and the found coordinates, taking into account any angles close to 360/0 degrees. If the difference for both the RA and Dec are below a set tolerance, then the positions match. Take the matched positions and convert the differences from degrees to milli arcseconds, and output the RA and Dec positions as well as the differences.</p>
+<p><a id="residual_ID"></a></p>
+<h1 id="Create-Figure-or-Print-Output">Create Figure or Print Output<a class="anchor-link" href="#Create-Figure-or-Print-Output">&#182;</a></h1><p>Explain what type of data analysis you will do.</p>
+<ol>
+<li>Reshaping arrays</li>
+<li>Scale counts relative to highest pixel value</li>
+<li>plot data</li>
+</ol>
+<p>Also mention the tests Pass/Fail Criteria and what you should expect.</p>
+<p><a href="#title_ID">Top of Page</a></p>
 
 </div>
 </div>
@@ -13422,66 +13246,23 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[5]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Compare input RA, Dec to found RA, Dec</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;       RA found       Dec found    RA_Diff (mas)  Dec_diff (mas)&#39;</span><span class="p">)</span>
-
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">RA_sim</span><span class="p">)):</span>
-    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">ra</span><span class="p">)):</span>
-        <span class="n">ra_diff</span> <span class="o">=</span> <span class="mi">180</span> <span class="o">-</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">RA_sim</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">ra</span><span class="p">[</span><span class="n">j</span><span class="p">])</span><span class="o">-</span><span class="mi">180</span><span class="p">)</span>
-        <span class="n">dec_diff</span> <span class="o">=</span> <span class="mi">180</span> <span class="o">-</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">Dec_sim</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">dec</span><span class="p">[</span><span class="n">j</span><span class="p">])</span><span class="o">-</span><span class="mi">180</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">ra_diff</span> <span class="o">&lt;</span> <span class="mf">1e-5</span> <span class="ow">and</span> <span class="n">dec_diff</span> <span class="o">&lt;</span> <span class="mf">1e-5</span><span class="p">:</span>
-            <span class="c1"># put differences in milliarcseconds</span>
-            <span class="n">ra_diff</span> <span class="o">=</span> <span class="n">ra_diff</span> <span class="o">*</span> <span class="mi">3600000</span>
-            <span class="n">dec_diff</span> <span class="o">=</span> <span class="n">dec_diff</span> <span class="o">*</span> <span class="mi">3600000</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{:15.6f}</span><span class="s1"> </span><span class="si">{:15.6f}</span><span class="s1"> </span><span class="si">{:15.6f}</span><span class="s1"> </span><span class="si">{:15.6f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ra</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">dec</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">ra_diff</span><span class="p">,</span> <span class="n">dec_diff</span><span class="p">))</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># data = output.reshape(x,y,z)</span>
+<span class="c1"># data = data.counts/np.max(data.counts)</span>
+<span class="c1"># plt.plot(data.counts[&#39;x&#39;], data.counts[y])</span>
+<span class="c1"># plt.show()</span>
 </pre></div>
 
     </div>
 </div>
 </div>
 
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>       RA found       Dec found    RA_Diff (mas)  Dec_diff (mas)
-     359.993290       -0.013338        0.052928        2.815799
-       0.006626       -0.013269        2.684439        8.692670
-     359.999999       -0.000003        2.352124       10.599301
-       0.008827        0.012749        2.899524        2.540859
-     359.993290        0.012880        1.504383        3.826542
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p><a id="residual_ID"></a></p>
-<h1 id="Compare-output-RA-and-Dec-to-expected-values">Compare output RA and Dec to expected values<a class="anchor-link" href="#Compare-output-RA-and-Dec-to-expected-values">&#182;</a></h1><p>The output RA and Dec coordinates should match the input RA and Dec coordinates to within 1/10 of a PSF FWHM (~0.03 arcsec for F770W).</p>
-<p>Output RA_Diff and Dec_diff above should be on order of 30 or fewer milliarcseconds.</p>
-<p><a href="#title_ID">Top of Page</a></p>
-
-</div>
-</div>
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><a id="about_ID"></a></p>
-<h2 id="About-this-Notebook">About this Notebook<a class="anchor-link" href="#About-this-Notebook">&#182;</a></h2><p><strong>Author:</strong> M. Cracraft, Research and Instrument Scientist II, INS/MIRI
-<br><strong>Updated On:</strong> 05/17/2019</p>
+<h2 id="About-this-Notebook">About this Notebook<a class="anchor-link" href="#About-this-Notebook">&#182;</a></h2><p><strong>Author:</strong> Author Name, Job Title, Branch Name
+<br><strong>Updated On:</strong> MM/DD/YYYY</p>
 
 </div>
 </div>
