@@ -13098,6 +13098,7 @@ div#notebook {
 <ul>
 <li>astropy.io for opening fits files</li>
 <li>inspect to get the docstring of our objects.</li>
+<li>IPython.display for printing markdown output</li>
 <li>jwst.datamodels for building model for JWST Pipeline</li>
 <li>jwst.module.PipelineStep is the pipeline step being tested</li>
 <li>matplotlib.pyplot.plt to generate plot</li>
@@ -13114,6 +13115,7 @@ div#notebook {
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># from astropy.io import fits</span>
 <span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">Markdown</span>
 <span class="kn">from</span> <span class="nn">jwst.datamodels</span> <span class="kn">import</span> <span class="n">RampModel</span>
 <span class="c1"># from jwst.module import PipelineStep</span>
 <span class="c1"># import matplotlib.pyplot as plt</span>
@@ -13159,23 +13161,40 @@ div#notebook {
 
 <span class="c1"># To convert to markdown, you need convert line breaks from \n to &lt;br /&gt;</span>
 <span class="n">markdown_text</span> <span class="o">=</span> <span class="s2">&quot;&lt;br /&gt;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">raw</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">))</span>
+
+<span class="c1"># Here you can format markdown as an output using the Markdown method.</span>
+<span class="n">Markdown</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2"># RampModel</span>
+<span class="s2">---</span>
+<span class="si">{}</span><span class="s2"></span>
+<span class="s2">&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">markdown_text</span><span class="p">))</span>
 </pre></div>
 
     </div>
 </div>
 </div>
 
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[2]:</div>
+
+
+
+<div class="output_markdown rendered_html output_subarea output_execute_result">
+<h1 id="RampModel">RampModel<a class="anchor-link" href="#RampModel">&#182;</a></h1><hr>
+<p>A data model for 4D ramps.<br /><br />Parameters<br /><strong><strong>__</strong></strong><br />data : numpy float32 array<br />     The science data<br /><br />pixeldq : numpy uint32 array<br />     2-D data quality array for all planes<br /><br />groupdq : numpy uint8 array<br />     4-D data quality array for each plane<br /><br />err : numpy float32 array<br />     Error array<br /><br />zeroframe : numpy float32 array<br />     Zeroframe array<br /><br />group : numpy table<br />     group parameters table<br /><br />int_times : numpy table<br />     table of times for each integration</p>
+
 </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="MiriRampModel">MiriRampModel<a class="anchor-link" href="#MiriRampModel">&#182;</a></h2><hr>
-<p>{{ markdown_text }}</p>
-<hr>
-<p><span style="color:red">**To get the markdown to print (double click this cell) you need to put the markdown_text variable in to double curly braces. Make sure you execute this cell before pushing changes!**</span></p>
+
+</div>
 
 </div>
 </div>
+
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
