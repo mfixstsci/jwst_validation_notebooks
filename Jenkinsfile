@@ -57,7 +57,7 @@ pipeline {
                     cd ${env.WORKSPACE}
                     chmod ug=rwx index.html 
                     chmod ug=rwx report.xml
-                    DATE=$(date "+%Y.%m.%d-%H.%M.%S")
+                    DATE="$(date "+%Y.%m.%d-%H.%M.%S")"
                     EXT="-report.xml"
                     REPORTNAME="$DATE$EXT"
                     mv report.xml "$REPORTNAME"
