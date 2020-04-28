@@ -55,9 +55,11 @@ pipeline {
                     git commit -m 'Automated deployment to GitHub Pages: ${env.BUILD_TAG}' --allow-empty
                     git push origin ${deploy_branch}
                     cd ${env.WORKSPACE}
-                    chmod ug=rw index.html 
-                    chmod -R ug=rw jwst_validation_notebooks/*
+                    chmod ug=rwx index.html 
+                    chmod ug=rwx jwst_validation_notebooks/report.txt
+                    chmod -R ug=rwx jwst_validation_notebooks/*
                     rsync -vH index.html ${env.WEBPAGE_DIR}
+                    rsync -vH jwst_validation_notebooks/report.txt ${env.WEBPAGE_DIR}
                     rsync -vHR jwst_validation_notebooks/*/*/*.html ${env.WEBPAGE_DIR}
                     """
                     )
