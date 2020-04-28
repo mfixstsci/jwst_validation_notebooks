@@ -30,7 +30,7 @@ pipeline {
 
     stage('Convert/Check') {
       steps {
-        sh("./with_env -n ${env_name} python convert.py --report report.txt")
+        sh("./with_env -n ${env_name} python convert.py --report report.xml")
         sh("./with_env -n ${env_name} python -m nbpages.check_nbs --notebook-path jwst_validation_notebooks")
       }
     }
@@ -57,9 +57,13 @@ pipeline {
                     cd ${env.WORKSPACE}
                     chmod ug=rwx index.html 
                     chmod ug=rwx report.xml
+                    DATE=$(date "+%Y.%m.%d-%H.%M.%S")
+                    EXT="-report.xml"
+                    REPORTNAME="$DATE$EXT"
+                    mv report.xml "$REPORTNAME"
                     chmod -R ug=rwx jwst_validation_notebooks/*
                     rsync -vH index.html ${env.WEBPAGE_DIR}
-                    rsync -vH report.xml ${env.WEBPAGE_DIR}
+                    rsync -vH "$REPORTNAME" ${env.WEBPAGE_DIR}/reports
                     rsync -vHR jwst_validation_notebooks/*/*/*.html ${env.WEBPAGE_DIR}
                     """
                     )
