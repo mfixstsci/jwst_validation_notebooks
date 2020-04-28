@@ -56,10 +56,10 @@ pipeline {
                     git push origin ${deploy_branch}
                     cd ${env.WORKSPACE}
                     chmod ug=rwx index.html 
-                    chmod ug=rwx jwst_validation_notebooks/report.txt
+                    chmod ug=rwx jwst_validation_notebooks/report.xml
                     chmod -R ug=rwx jwst_validation_notebooks/*
                     rsync -vH index.html ${env.WEBPAGE_DIR}
-                    rsync -vH jwst_validation_notebooks/report.txt ${env.WEBPAGE_DIR}
+                    rsync -vH jwst_validation_notebooks/report.xml ${env.WEBPAGE_DIR}
                     rsync -vHR jwst_validation_notebooks/*/*/*.html ${env.WEBPAGE_DIR}
                     """
                     )
