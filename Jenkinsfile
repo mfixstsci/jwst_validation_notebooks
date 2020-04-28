@@ -58,7 +58,7 @@ pipeline {
                     cd ${env.WORKSPACE}
                     chmod ug=rwx index.html 
                     chmod ug=rwx report*.xml
-                    chmod -R ug=rwx jwst_validation_notebooks/*
+                    chmod -R ug=rwx jwst_validation_notebooks/*/*/*.html
                     rsync -vH index.html ${env.WEBPAGE_DIR}
                     rsync -v report*.xml ${env.WEBPAGE_DIR}reports
                     rsync -vHR jwst_validation_notebooks/*/*/*.html ${env.WEBPAGE_DIR}
