@@ -11,6 +11,10 @@ pipeline {
     PATH ="${WORKSPACE}/miniconda3/bin:${PATH}"
     TMPDIR="${WORKSPACE}/tmp"
     XDG_CACHE_HOME="${WORKSPACE}/tmp/.cache"
+    REPORTNAME = sh(script: """ DATE="$(date "+%Y.%m.%d-%H.%M.%S")"
+                                EXT="-report.xml"
+                                REPORTNAME="$DATE$EXT"
+                            """, returnStdout: true)
   }
 
   stages {
@@ -57,9 +61,6 @@ pipeline {
                     cd ${env.WORKSPACE}
                     chmod ug=rwx index.html 
                     chmod ug=rwx report.xml
-                    DATE="$(date "+%Y.%m.%d-%H.%M.%S")"
-                    EXT="-report.xml"
-                    REPORTNAME="$DATE$EXT"
                     mv report.xml "$REPORTNAME"
                     chmod -R ug=rwx jwst_validation_notebooks/*
                     rsync -vH index.html ${env.WEBPAGE_DIR}
