@@ -14,7 +14,7 @@ def prepend_date_to_report(reportfile):
     now = datetime.datetime.now().isoformat()
 
     if os.path.exists(reportfile):
-        os.rename(reportfile, now + '-' + reportfile) 
+        os.replace(reportfile, 'report-' + now + '.xml') 
     else:
         print("Path not provided, continuing")
 
