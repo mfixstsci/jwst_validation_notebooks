@@ -32,9 +32,6 @@ pipeline {
       steps {
         sh("./with_env -n ${env_name} python convert.py --report report.xml")
         sh("./with_env -n ${env_name} python prepend_date.py --reportfile report.xml")
-        sh("./with_env -n ${env_name} python set_permissions.py --files index.html")
-        sh("./with_env -n ${env_name} python set_permissions.py --files report*.xml")
-        sh("./with_env -n ${env_name} python set_permissions.py --files jwst_validation_notebooks/*/*/*.html")
         sh("./with_env -n ${env_name} python -m nbpages.check_nbs --notebook-path jwst_validation_notebooks")
       }
     }
@@ -59,6 +56,9 @@ pipeline {
                     git commit -m 'Automated deployment to GitHub Pages: ${env.BUILD_TAG}' --allow-empty
                     git push origin ${deploy_branch}
                     cd ${env.WORKSPACE}
+                    ./with_env -n ${env_name} python set_permissions.py --files index.html
+                    ./with_env -n ${env_name} python set_permissions.py --files report*.xml
+                    ./with_env -n ${env_name} python set_permissions.py --files jwst_validation_notebooks/*/*/*.html
                     rsync -vH index.html ${env.WEBPAGE_DIR}
                     rsync -v report*.xml ${env.WEBPAGE_DIR}reports
                     rsync -vHR jwst_validation_notebooks/*/*/*.html ${env.WEBPAGE_DIR}
