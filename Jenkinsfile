@@ -56,9 +56,9 @@ pipeline {
                     git commit -m 'Automated deployment to GitHub Pages: ${env.BUILD_TAG}' --allow-empty
                     git push origin ${deploy_branch}
                     cd ${env.WORKSPACE}
-                    ./with_env -n ${env_name} python set_permissions.py --files index.html
-                    ./with_env -n ${env_name} python set_permissions.py --files report*.xml
-                    ./with_env -n ${env_name} python set_permissions.py --files jwst_validation_notebooks/*/*/*.html
+                    chmod ug=rwx index.html 
+                    chmod ug=rwx report*.xml
+                    chmod -R ug=rwx jwst_validation_notebooks/*
                     rsync -vH index.html ${env.WEBPAGE_DIR}
                     rsync -v report*.xml ${env.WEBPAGE_DIR}reports
                     rsync -vHR jwst_validation_notebooks/*/*/*.html ${env.WEBPAGE_DIR}
