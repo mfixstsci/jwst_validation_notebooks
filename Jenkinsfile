@@ -11,7 +11,7 @@ pipeline {
     PATH ="${WORKSPACE}/miniconda3/bin:${PATH}"
     TMPDIR="${WORKSPACE}/tmp"
     XDG_CACHE_HOME="${WORKSPACE}/tmp/.cache"
-    DATE = sh(script: """$(date "+%Y.%m.%d-%H.%M.%S")""", returnStdout: true)
+    DATE = sh(script: """\$5(date "+%Y.%m.%d-%H.%M.%S")""", returnStdout: true)
     EXT = sh(script: """-report.xml""", returnStdout: true)
     REPORTNAME = sh(script: """${env.DATE}${env.EXT}""", returnStdout: true)
   }
