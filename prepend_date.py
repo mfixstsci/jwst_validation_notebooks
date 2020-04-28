@@ -11,10 +11,11 @@ def prepend_date_to_report(reportfile):
         name of report to add date to
     """
 
-    now = datetime.datetime.now().isoformat()
+    now = datetime.datetime.now()
 
     if os.path.exists(reportfile):
-        os.replace(reportfile, 'report-' + now + '.xml') 
+        dt_string = now.strftime("%Y-%m-%d-%H-%M-%S")   
+        os.replace(reportfile, 'report-' + dt_string + '.xml') 
     else:
         print("Path not provided, continuing")
 
