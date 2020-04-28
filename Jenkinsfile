@@ -60,7 +60,7 @@ pipeline {
                     chmod ug=rwx *report.xml
                     chmod -R ug=rwx jwst_validation_notebooks/*
                     rsync -vH index.html ${env.WEBPAGE_DIR}
-                    rsync -vH *report.xml ${env.WEBPAGE_DIR}/reports
+                    rsync -v *report.xml ${env.WEBPAGE_DIR}/reports
                     rsync -vHR jwst_validation_notebooks/*/*/*.html ${env.WEBPAGE_DIR}
                     """
                     )
